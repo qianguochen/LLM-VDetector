@@ -32,5 +32,9 @@ class VulnerabilityType(StrEnum):
     Write_to_Arbitrary_Storage_Location = "Write_to_Arbitrary_Storage_Location"
 
 class PersistencePath(StrEnum):
-    Vul_Metadata = 'E:\Project\PycharmProjects\LLM-VDetector\data_base\\vul_info\\' # 漏洞元数据路径
-    Vul_Source_Base = 'E:\Project\PycharmProjects\LLM-VDetector\DAppSCAN-source\contracts'
+    Vul_info = 'E:\Project\PycharmProjects\LLM-VDetector\data_base\\vul_info\\' # 漏洞源数据 源码
+    vul_cfg_info = 'E:\Project\PycharmProjects\LLM-VDetector\data_base\\vul_cfg_info\\'  # 漏洞源数据 CFG
+    Source_Code_Info = 'E:\Project\PycharmProjects\LLM-VDetector\data_base\source_code_info\\'  # prompt数据 源码+CFG
+    Vul_Source_Base = 'E:\Project\PycharmProjects\LLM-VDetector\DAppSCAN-source\contracts\\' #漏洞源码数据库
+    Vul_Source_bytecode_Base = 'E:\Project\PycharmProjects\LLM-VDetector\DAppSCAN-source\\bytecode' # 漏洞字节码数据库
+    Vul_cfg_base = 'E:\Project\PycharmProjects\LLM-VDetector\DAppSCAN-source\\SWCbytecode' # CFG漏洞检测数据

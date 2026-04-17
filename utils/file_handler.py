@@ -1,24 +1,25 @@
 import os
 import json
+import re
 import threading
 from pathlib import Path
 
 lock = threading.Lock()
 
 
-def init_file(path):
-    with open(path, "w") as f:
+def init_file(path, file_name):
+    with open(path + file_name, "w") as f:
         pass
 
 
-def save_data(base_path,file_name, data):
-    if not os.path.exists(base_path+file_name):
-        with open(base_path+file_name, "w") as f:
+def save_data(base_path, file_name, data):
+    if not os.path.exists(base_path + file_name):
+        with open(base_path + file_name, "w") as f:
             pass
-    with open(base_path+file_name, 'a', encoding='utf-8') as f:
+    with open(base_path + file_name, 'a', encoding='utf-8') as f:
         try:
             lock.acquire()
-            if isinstance(data,list) and len(data)>=1:
+            if isinstance(data, list) and len(data) >= 1:
                 for item in data:
                     write_line = json.dumps(item)
                     f.write(write_line + '\n')
@@ -30,22 +31,27 @@ def save_data(base_path,file_name, data):
 
 
 def read_data(path):
-    if not os.path.exists(path):
-        with open(path, "w") as f:
-            pass
-
-    with open(path, 'r', encoding='utf-8') as f:
-        if path.endswith('.json'):
-            data = json.load(f)
-            return data
-        elif path.endswith('.jsonl'):
-            data = []
-            for item in f.readlines():
-                data.append(json.loads(item))
-            return data
-        elif path.endswith('.sol'):
-            return f.readlines()
-    return None
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            if path.endswith('.json'):
+                data = json.load(f)
+                return data
+            elif path.endswith('.jsonl'):
+                data = []
+                for item in f.readlines():
+                    data.append(json.loads(item))
+                return data
+            elif path.endswith('.sol'):
+                return f.readlines()
+            return None
+    except FileNotFoundError:
+        return {} if path.endswith('.json') else []
+    except json.JSONDecodeError as e:
+        print(f"JSON 解析错误 ({path}): {e}")
+        return [] if path.endswith('.jsonl') else []
+    except Exception as e:
+        print(f"读取文件错误 ({path}): {e}")
+        return '' if path.endswith('.sol') else []
 
 
 def extract_dir(folder_path, file_suffix):
@@ -66,6 +72,42 @@ def extract_dir(folder_path, file_suffix):
 def get_file_name(file_path):
     path = Path(file_path)
     return path.name
+
+
+def has_letter(s):
+    return any(c.isalpha() for c in s)
+
+
+def get_code_snippet_by_line(line_info, source_code):
+    code_list = []
+    if '-' in line_info:
+        line = line_info.split('-')
+        line_code_begin = re.findall(r'\d+', line[0])
+        line_code_last = re.findall(r'\d+', line[1])
+        try:
+            for i in range(int(line_code_begin[0]), int(line_code_last[0]) + 1):
+                code_list.append(source_code[i - 1].strip())
+        except Exception as e:
+            print('-')
+            print(code_list)
+            print(e)
+
+    else:
+        try:
+            if has_letter(line_info):
+                code_list = source_code
+            else:
+                line_code = int(line_info)
+                if 'SWC' in source_code[line_code - 1]:
+                    for i in range(line_code - 2, line_code + 2):
+                        code_list.append(source_code[i - 1].strip())
+                else:
+                    code_list.append(source_code[line_code - 1].strip())
+        except Exception as e:
+            print('swc')
+            print(code_list)
+            print(e)
+    return code_list
 
 
 def has_duplicate_lines(input_file, output_file):
@@ -100,4 +142,3 @@ def has_duplicate_lines(input_file, output_file):
     print(f"处理完成！")
     print(f"发现重复行: {duplicates_count}")
     print(f"保留唯一行: {len(seen_lines)}")
-
