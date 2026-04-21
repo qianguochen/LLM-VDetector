@@ -4,19 +4,16 @@
 """
 import json
 from typing import Dict, Any
-
-from utils import file_handler
 from collections import deque
 from utils import token_utils
 
 
-from .function_slicer import FunctionSlicer
+from function_slicer import FunctionSlicer
 
 def chunk_ast(ast_data):
     """
     Args:
         ast_data: AST数据（字符串或字典）
-        chunk_size: 每个分片的最大token数
 
     Returns:
         list: 分片后的AST JSON字符串列表
@@ -266,17 +263,3 @@ def _remove_id_src_fields(data: Dict[str, Any]) -> Dict[str, Any]:
             else:
                 result[key] = value
     return result
-
-
-if __name__ == '__main__':
-    ast_data = file_handler.read_data(
-        '../DAppSCAN_CFG/vulnerable_info_data_for_gpt/DAppScan_Authorization_through_tx.origin_vulnerable_cfg_info_AST.jsonl')
-    result = chunk_ast(ast_data[0]['AST'])
-    # print(ast_data[2])
-    # print(result[0])
-    # print(result[2])
-    # chain_clusters = cluster_by_call_chain(result[0])
-    # print(chain_clusters)
-    # for i, cluster_funcs in enumerate(chain_clusters, 1):
-    #     print(f"调用链簇 {i}: {cluster_funcs}")
-    # print(result[1])

@@ -2,9 +2,8 @@ import os
 import sys
 from pathlib import Path
 from utils import file_handler
-from config import enums
-from config.enums import PersistencePath, VulnerabilityType
-
+from config.enums import VulnerabilityType
+from config.settings import VUL_INFO,VUL_SOURCE_BASE
 
 def extract_dir(folder_path, file_name):
     folder_path = Path(folder_path).resolve()
@@ -33,16 +32,16 @@ def extract_dir(folder_path, file_name):
                         except IndexError:
                             vul_info['vul_location'] = f"L{count_line + 1}"
                             count_line = 0
-                        file_handler.save_data(PersistencePath.Vul_info, file_name, vul_info)
+                        file_handler.save_data(VUL_INFO, file_name, vul_info)
 
 
 def divide_vulnerable(path):
     data_list = file_handler.read_data(path)
-    for vul_type in enums.VulnerabilityType:
+    for vul_type in VulnerabilityType:
         for vul_data in data_list:
             vulnerable_type = vul_data['vul_type']
             if vul_type.replace('_', ' ') in vulnerable_type:
-                file_handler.save_data(PersistencePath.Vul_info,
+                file_handler.save_data(VUL_INFO,
                                        'DAppScan_' + vul_type.replace(' ', '_') + '_vulnerable_info.jsonl',
                                        vul_data)
 
@@ -58,17 +57,17 @@ def get_vulnerable_info(path):
             code_list = file_handler.get_code_snippet_by_line(item2, source_code)
             item['vulnerable_code'] = code_list
             item['file_name'] = os.path.basename(file_path)
-            file_handler.save_data(PersistencePath.Vul_info, f'fix_{Path(path).absolute().name}', item)
+            file_handler.save_data(VUL_INFO, f'fix_{Path(path).absolute().name}', item)
 
 
 # 源码实验数据准备
 if __name__ == '__main__':
     # 提取漏洞基础信息
-    data_path = PersistencePath.Vul_Source_Base
+    data_path = VUL_SOURCE_BASE
     save_file_name = 'DAppScan_vulnerable_info.jsonl'
     extract_dir(data_path, save_file_name)
     # 根据漏洞类型切分
-    divide_vulnerable(PersistencePath.Vul_info + save_file_name)
+    divide_vulnerable(VUL_INFO + save_file_name)
     # 补充漏洞位置源码信息
     for vul in VulnerabilityType:
-        get_vulnerable_info(f'{PersistencePath.Vul_info}DAppScan_{vul.value}_vulnerable_info.jsonl')
+        get_vulnerable_info(f'{VUL_INFO}DAppScan_{vul.value}_vulnerable_info.jsonl')

@@ -4,12 +4,26 @@ import re
 import threading
 from pathlib import Path
 
-lock = threading.Lock()
-
 
 def init_file(path, file_name):
-    with open(path + file_name, "w") as f:
-        pass
+    """
+        初始化文件：如果文件存在则清空内容，不存在则创建空文件
+
+        Args:
+            path: 目录路径
+            file_name: 文件名
+
+        Returns:
+            str: 文件完整路径
+        """
+    # 确保目录存在
+    os.makedirs(path, exist_ok=True)
+
+    file_path = os.path.join(path, file_name)
+
+    # "w" 模式：文件存在则清空，不存在则创建
+    with open(file_path, "w") as f:
+        pass  # 清空或创建空文件
 
 
 def save_data(base_path, file_name, data):
@@ -18,7 +32,6 @@ def save_data(base_path, file_name, data):
             pass
     with open(base_path + file_name, 'a', encoding='utf-8') as f:
         try:
-            lock.acquire()
             if isinstance(data, list) and len(data) >= 1:
                 for item in data:
                     write_line = json.dumps(item)
@@ -26,9 +39,8 @@ def save_data(base_path, file_name, data):
             else:
                 write_line = json.dumps(data)
                 f.write(write_line + '\n')
-        finally:
-            lock.release()
-
+        except Exception as e:
+            print(e)
 
 def read_data(path):
     try:

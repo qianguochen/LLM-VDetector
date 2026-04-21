@@ -4,9 +4,9 @@ from utils import file_handler
 import os
 from typing import Dict, Any
 import tiktoken
-from config.enums import PersistencePath
 from config.enums import VulnerabilityType
 from fileter_source_code import remove_comments,read_solidity
+from config.settings import VUL_CFG_INFO,VUL_CFG_BASE,VUL_SOURCE_BYTECODE_BASE,VUL_SOURCE_BASE,SOURCE_CODE_INFO
 
 def extract_dir_cfg(folder_path, file_name):
     for root, dirs, files in os.walk(folder_path):
@@ -20,7 +20,7 @@ def extract_dir_cfg(folder_path, file_name):
                 with open(absolute_path, 'r') as f:
                     data = f.read()
                     data = json.loads(data)
-                    file_handler.save_data(PersistencePath.vul_cfg_info, file_name, data)
+                    file_handler.save_data(VUL_CFG_INFO, file_name, data)
 
 
 # 根据漏洞类型分类
@@ -37,7 +37,7 @@ def divide_vulnerable(path):
                     vul_line['vul_type'] = vulnerable_type
                     vul_line['vul_location'] = item['lines']
                     vul_line['function'] = item['function']
-                    file_handler.save_data(PersistencePath.vul_cfg_info,
+                    file_handler.save_data(VUL_CFG_INFO,
                                            'DAppScan_' + vul_type.replace(' ', '_') + '_vulnerable_info_cfg.jsonl',
                                            vul_line)
 
@@ -47,7 +47,7 @@ def collect_ast_data_from_bytecode(folder_path, file_suffix):
     data = file_handler.extract_dir(folder_path, file_suffix)
     folder_name = data[1]
     for item in data[0]:
-        file_handler.save_data(PersistencePath.vul_cfg_info, 'DAppSCAN_' + folder_name, item)
+        file_handler.save_data(VUL_CFG_INFO, 'DAppSCAN_' + folder_name, item)
 
 
 # 补充漏洞信息的源码用于判断 控制流图
@@ -55,7 +55,7 @@ def get_vulnerable_info_cfg(path):
     data = file_handler.read_data(path)
     for item in data:
         file_path = item['file_path'].replace('rce/contracts/', '', 1)
-        file_path = Path(fr"{PersistencePath.Vul_Source_Base}{file_path}")
+        file_path = Path(fr"{VUL_SOURCE_BASE}{file_path}")
         lines = item['vul_location']
         lines = lines.replace('L', '').replace(' ', '').split(',')
         for item2 in lines:
@@ -66,17 +66,20 @@ def get_vulnerable_info_cfg(path):
             item['vulnerable_code'] = code_list
             item['file_name'] = os.path.basename(file_path)
             print(item)
-            file_handler.save_data(PersistencePath.vul_cfg_info,
-                                   'fix_' + path.replace(PersistencePath.vul_cfg_info, ''), item)
+            file_handler.save_data(VUL_CFG_INFO,
+                                   'fix_' + path.replace(VUL_CFG_INFO, ''), item)
 
 
 # 获取已编译好的源码AST（CFG）
 def get_cfg_data(path):
-    bytecode_location_info = file_handler.read_data(f'{PersistencePath.vul_cfg_info}DAppSCAN_bytecode.jsonl')
+    bytecode_location_info = file_handler.read_data(f'{VUL_CFG_INFO}DAppSCAN_bytecode.jsonl')
+    file_handler.init_file(SOURCE_CODE_INFO,
+                           file_handler.get_file_name(path).replace('fix_', '').replace('vulnerable_info_', ''))
     vulnerable_info_data = file_handler.read_data(path)
     for item in vulnerable_info_data:
         info = {'node_name': item['node_name'], 'file_name': Path(item['file_path']).name}
         vul_info = {'vul_type': item['vul_type'], 'vul_location': item['vul_location'],
+                    'file_path': item['file_path'],
                     'function': item['function'],
                     'vulnerable_code': item['vulnerable_code']}
         info['vulnerable_info'] = vul_info
@@ -93,7 +96,7 @@ def get_cfg_data(path):
                     if sol_name in item3:
                         ast = ast_data['sources'][item3]['AST']
                         info['AST'] = remove_id_src_fields(ast)
-        file_handler.save_data(PersistencePath.Source_Code_Info,file_handler.get_file_name(path).replace('fix_','').replace('vulnerable_info_',''), info)
+        file_handler.save_data(SOURCE_CODE_INFO,file_handler.get_file_name(path).replace('fix_','').replace('vulnerable_info_',''), info)
 
 
 def remove_id_src_fields(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -135,23 +138,23 @@ def calculate_token(message):
 # 控制流图实验数据准备
 if __name__ == '__main__':
     # 提取漏洞基础信息
-    data_path = PersistencePath.Vul_cfg_base
+    data_path = VUL_CFG_BASE
     save_file_name = 'DAppScan_vulnerable_info_cfg.jsonl'
     extract_dir_cfg(data_path, save_file_name)
 
     # 根据漏洞类型切分
-    divide_vulnerable(PersistencePath.vul_cfg_info+save_file_name)
+    divide_vulnerable(VUL_CFG_INFO+save_file_name)
 
     # 提取编译后的字节码
-    collect_ast_data_from_bytecode(PersistencePath.Vul_Source_bytecode_Base, '.json')
+    collect_ast_data_from_bytecode(VUL_SOURCE_BYTECODE_BASE, '.json')
 
     # 补充漏洞位置源码信息
     for vul_type in VulnerabilityType:
         get_vulnerable_info_cfg(
-            f'{PersistencePath.vul_cfg_info}DAppScan_{vul_type}_vulnerable_info_cfg.jsonl')
+            f'{VUL_CFG_INFO}DAppScan_{vul_type}_vulnerable_info_cfg.jsonl')
 
     # 补充漏洞文件源码以及对应的字节码
     for vul_type in VulnerabilityType:
         get_cfg_data(
-            f'{PersistencePath.vul_cfg_info}fix_DAppScan_{vul_type}_vulnerable_info_cfg.jsonl')
+            f'{VUL_CFG_INFO}fix_DAppScan_{vul_type}_vulnerable_info_cfg.jsonl')
 

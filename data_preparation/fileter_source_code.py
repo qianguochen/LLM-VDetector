@@ -5,9 +5,7 @@ from pathlib import Path
 import re
 from utils import file_handler
 from config.enums import VulnerabilityType
-from config.enums import PersistencePath
-
-lock = threading.Lock()
+from config.settings import VUL_INFO, SOURCE_CODE_INFO
 
 
 def read_solidity(file):
@@ -46,9 +44,9 @@ if __name__ == '__main__':
     thread = 10
     for vulnerable_type in VulnerabilityType:
         file_name = f'DAppScan_{vulnerable_type}.jsonl'
-        base_path = PersistencePath.Source_Code_Info
+        base_path = SOURCE_CODE_INFO
         file_handler.init_file(base_path, file_name)
-        path = f'{PersistencePath.Vul_info}fix_DAppScan_{vulnerable_type}_vulnerable_info.jsonl'
+        path = f'{VUL_INFO}fix_DAppScan_{vulnerable_type}_vulnerable_info.jsonl'
         data = file_handler.read_data(path)
         for item in data:
             vulnerable_info = {}
@@ -57,4 +55,4 @@ if __name__ == '__main__':
             vulnerable_info['vul_location'] = item['vul_location']
             vulnerable_info['vulnerable_code'] = item['vulnerable_code']
             with ThreadPoolExecutor(max_workers=thread) as executor:
-                executor.submit(task(PersistencePath.Source_Code_Info, file_name, absolute_path, vulnerable_info))
+                executor.submit(task,SOURCE_CODE_INFO, file_name, absolute_path, vulnerable_info)

@@ -31,10 +31,8 @@ class VulnerabilityType(StrEnum):
     Weak_Sources_of_Randomness_from_Chain_Attributes = "Weak_Sources_of_Randomness_from_Chain_Attributes"
     Write_to_Arbitrary_Storage_Location = "Write_to_Arbitrary_Storage_Location"
 
-class PersistencePath(StrEnum):
-    Vul_info = 'E:\Project\PycharmProjects\LLM-VDetector\data_base\\vul_info\\' # 漏洞源数据 源码
-    vul_cfg_info = 'E:\Project\PycharmProjects\LLM-VDetector\data_base\\vul_cfg_info\\'  # 漏洞源数据 CFG
-    Source_Code_Info = 'E:\Project\PycharmProjects\LLM-VDetector\data_base\source_code_info\\'  # prompt数据 源码+CFG
-    Vul_Source_Base = 'E:\Project\PycharmProjects\LLM-VDetector\DAppSCAN-source\contracts\\' #漏洞源码数据库
-    Vul_Source_bytecode_Base = 'E:\Project\PycharmProjects\LLM-VDetector\DAppSCAN-source\\bytecode' # 漏洞字节码数据库
-    Vul_cfg_base = 'E:\Project\PycharmProjects\LLM-VDetector\DAppSCAN-source\\SWCbytecode' # CFG漏洞检测数据
+
+class DetectMode(StrEnum):
+    SOURCE_ONLY =  "SOURCE_ONLY",  # 仅源码检测
+    CFG_ONLY = "CFG_ONLY",  # 仅控制流图检测
+    SOURCE_AND_CFG = "SOURCE_AND_CFG",  # 源码 + 控制流图检测
