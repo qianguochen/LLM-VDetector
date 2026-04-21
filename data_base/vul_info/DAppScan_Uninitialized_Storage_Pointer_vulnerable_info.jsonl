@@ -1,1 +1,0 @@
-{"file_path": "E:\\Project\\PycharmProjects\\LLM-VDetector\\DAppSCAN-source\\contracts\\openzeppelin-Hubii_Token\\ico-142f43f3bec4afd0ffff3fce06946cf67cb0272f\\MultiSigWallet.sol", "vul_type": "SWC-109-Uninitialized Storage Pointer", "vul_location": "L10-360"}
