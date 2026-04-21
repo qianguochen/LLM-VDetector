@@ -16,7 +16,7 @@ VUL_CFG_INFO = 'E:\Project\PycharmProjects\LLM-VDetector\data_base\\vul_cfg_info
 SOURCE_CODE_INFO = 'E:\Project\PycharmProjects\LLM-VDetector\data_base\source_code_info\\'  # prompt数据 源码+CFG
 VUL_SOURCE_BASE = 'E:\Project\PycharmProjects\LLM-VDetector\DAppSCAN-source\contracts\\' #漏洞源码数据库
 VUL_SOURCE_BYTECODE_BASE = 'E:\Project\PycharmProjects\LLM-VDetector\DAppSCAN-source\\bytecode' # 漏洞字节码数据库
-VUL_CFG_BASE = 'E:\Project\PycharmProjects\LLM-VDetector\DAppSCAN-source\\SWCbytecode' # CFG漏洞检测数据
+VUL_CFG_BASE = 'E:\Project\PycharmProjects\LLM-VDetector\DAppSCAN-source\\SWCbytecode' # CFG源漏洞检测数据
 
 SOURCE_DETECT_OUTPUT_DIR = 'E:\Project\PycharmProjects\LLM-VDetector\experiments\exp_source_detection\\'
 CFG_DETECT_OUTPUT_DIR = 'E:\Project\PycharmProjects\LLM-VDetector\experiments\exp_cfg_detection\\'
